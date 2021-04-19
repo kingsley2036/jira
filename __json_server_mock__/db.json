@@ -1,5 +1,49 @@
 {
-  "user":[{
+  "users":[{
+    "id":1,
     "name":"kingsley"
-  }]
+  },
+  {
+    "id":2,
+    "name":"张三"
+  },
+  {
+    "id":3,
+    "name":"李四"
+  },
+  {
+    "id":4,
+    "name":"王二麻子"
+  } 
+],
+"projects":[
+  {
+    "id":1,
+    "name":"骑手管理",
+    "personId":1,
+    "organization":"外卖组",
+    "created":"160498957139"
+  },
+  {
+    "id":2,
+    "name":"团购app",
+    "personId":2,
+    "organization":"团购app组",
+    "created":"160498957139"
+  },
+  {
+    "id":3,
+    "name":"物料管理",
+    "personId":3,
+    "organization":"物料组",
+    "created":"160498957139"
+  },
+  {
+    "id":4,
+    "name":"总部管理系统",
+    "personId":4,
+    "organization":"管理系统组",
+    "created":"160498957139"
+  }
+]
 }
