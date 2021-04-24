@@ -1,4 +1,3 @@
-import { Interface } from "node:readline";
 import react, { useEffect, useState } from "react";
 const isFalsy = (value: any) => {
   return value === 0 ? false : !value;
