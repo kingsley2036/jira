@@ -28,7 +28,7 @@ export const ProjectListScreen = () => {
   const debounceValue = useDebounce(param, 1000);
   const { value, add, removeIndex, clear } = useArray(persons);
 
-  const apiUrl = process.env.REACT_APP_API_RUL;
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [list, setList] = useState([]);
   useEffect(() => {
     fetch(`${apiUrl}/projects?${qs.stringify(cleanObjet(param))}`).then(
