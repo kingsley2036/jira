@@ -22,7 +22,7 @@ const persons: person[] = [
 export const ProjectListScreen = () => {
   const [param, setParam] = useState({
     name: "",
-    personId: "",
+    personId: 0,
   });
   const [users, setUsers] = useState([]);
   const debounceValue = useDebounce(param, 1000);

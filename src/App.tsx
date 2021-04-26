@@ -8,8 +8,7 @@ function App() {
   const { user } = useAuth();
   return (
     <div className="App">
-      {/* <ProjectListScreen></ProjectListScreen> */}
-      <Login></Login>
+      {user ? <AuthenticatedApp /> : <UnauthenticatedApp />}
     </div>
   );
 }
