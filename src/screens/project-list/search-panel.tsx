@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   title: string;
@@ -13,7 +13,7 @@ export const SearchPanel = ({
   setParam,
   users,
 }: {
-  param: { name: string; personId: number };
+  param: { name: string; personId: string };
   setParam: any;
   users: any;
 }) => {
@@ -28,7 +28,7 @@ export const SearchPanel = ({
             name: e.target.value,
           });
         }}
-      ></input>
+      />
       <select
         value={param.personId}
         onChange={(e) => {

@@ -1,57 +1,61 @@
-import react, { useEffect, useState } from "react";
-const isFalsy = (value: any) => {
-  return value === 0 ? false : !value;
-};
+import { useEffect, useState } from "react";
 
-export const cleanObjet = (object: any) => {
-  const result = { ...object }; // 浅拷贝,只适用于简单对象
+export const isFalsy = (value: unknown) => (value === 0 ? false : !value);
+
+// 在一个函数里，改变传入的对象本身是不好的
+export const cleanObject = (object: object) => {
+  // Object.assign({}, object)
+  const result = { ...object };
   Object.keys(result).forEach((key) => {
+    // @ts-ignore
     const value = result[key];
     if (isFalsy(value)) {
+      // @ts-ignore
       delete result[key];
     }
   });
   return result;
 };
 
-export const useMount = (callback: any) => {
+export const useMount = (callback: () => void) => {
   useEffect(() => {
     callback();
   }, []);
 };
 
-export const useDebounce = (value: any, delay: number) => {
-  const [debouneValue, setdebouneValue] = useState(value); // 初始状态是什么
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // value变化会导致一直重置定时器,所以setdebouneValue一直没有执行,直到value不变化
-      setdebouneValue(value);
-    }, delay);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [value, delay]);
-  return debouneValue; // 他其实一直在返回value,只是value一直变化时,debouneValue不变
-};
-interface arrayProp<T> {
-  name: string;
-  age: number;
-}
-export const useArray = <T>(array: T[]) => {
-  const [value, setValue] = useState(array);
+// debounce 原理讲解：
+// 0s ---------> 1s ---------> 2s --------> ...
+//     一定要理解：这三个函数都是同步操作，所以它们都是在 0~1s 这个时间段内瞬间完成的；
+//     log()#1 // timeout#1
+//     log()#2 // 发现 timeout#1！取消之，然后设置timeout#2
+//     log()#3 // 发现 timeout#2! 取消之，然后设置timeout#3
+//             // 所以，log()#3 结束后，就只剩timeout#3在独自等待了
 
+// 后面用泛型来规范类型
+export const useDebounce = <V>(value: V, delay?: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    // 每次在value变化以后，设置一个定时器
+    const timeout = setTimeout(() => setDebouncedValue(value), delay);
+    // 每次在上一个useEffect处理完以后再运行
+    return () => clearTimeout(timeout);
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
+export const useArray = <T>(initialArray: T[]) => {
+  const [value, setValue] = useState(initialArray);
   return {
     value,
-    add: (p: T) => {
-      setValue([...value, p]);
-    },
+    setValue,
+    add: (item: T) => setValue([...value, item]),
+    clear: () => setValue([]),
     removeIndex: (index: number) => {
       const copy = [...value];
       copy.splice(index, 1);
       setValue(copy);
-    },
-    clear: () => {
-      setValue([]);
     },
   };
 };

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { SearchPanel } from "./search-panel";
 import { List } from "./list";
-import { cleanObjet, useMount, useDebounce, useArray } from "utils/index";
-import qs from "qs";
+import { cleanObject, useMount, useDebounce, useArray } from "utils/index";
+import { useHttp } from "../../utils/http";
 
 interface person {
   name: string;
@@ -22,38 +22,27 @@ const persons: person[] = [
 export const ProjectListScreen = () => {
   const [param, setParam] = useState({
     name: "",
-    personId: 0,
+    personId: "",
   });
   const [users, setUsers] = useState([]);
   const debounceValue = useDebounce(param, 1000);
-  const { value, add, removeIndex, clear } = useArray(persons);
-
   const apiUrl = process.env.REACT_APP_API_URL;
   const [list, setList] = useState([]);
+  const client = useHttp();
   useEffect(() => {
-    fetch(`${apiUrl}/projects?${qs.stringify(cleanObjet(param))}`).then(
-      async (res) => {
-        if (res.ok) {
-          setList(await res.json());
-        }
-      }
-    );
+    client("projects", { data: cleanObject(debounceValue) }).then((res) => {
+      setList(res);
+    });
   }, [debounceValue, apiUrl]);
   useMount(() => {
-    fetch(`${apiUrl}/users`).then(async (res) => {
-      if (res.ok) {
-        setUsers(await res.json());
-      }
+    client("users").then((res) => {
+      setUsers(res);
     });
   });
   return (
     <div>
-      <SearchPanel
-        param={param}
-        setParam={setParam}
-        users={users}
-      ></SearchPanel>
-      <List users={users} list={list}></List>
+      <SearchPanel param={param} setParam={setParam} users={users} />
+      <List users={users} list={list} />
     </div>
   );
 };

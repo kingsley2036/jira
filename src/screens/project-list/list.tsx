@@ -28,7 +28,7 @@ export const List = ({ list, users }: ListProps) => {
             <td>{project.name}</td>
             {/*undefined.name*/}
             <td>
-              {users.find((user) => `${user.id}` === project.personId)?.name ||
+              {users.find((user) => user.id === project.personId)?.name ||
                 "未知"}
             </td>
           </tr>

@@ -1,16 +1,18 @@
 import qs from "qs";
-import { logout } from "../auth-provider";
-const apiUrl = process.env.REACT_APP_API_URL; // baseurl
+import * as auth from "auth-provider";
+import { useAuth } from "context/auth-context";
+
+const apiUrl = process.env.REACT_APP_API_URL;
+
 interface Config extends RequestInit {
-  data: object;
-  token: string;
+  token?: string;
+  data?: object;
 }
 
 export const http = async (
   endpoint: string,
-  { data, token, headers, ...customConfig }: Config
+  { data, token, headers, ...customConfig }: Config = {}
 ) => {
-  // baseurl+requrl,config
   const config = {
     method: "GET",
     headers: {
@@ -19,24 +21,35 @@ export const http = async (
     },
     ...customConfig,
   };
+
   if (config.method.toUpperCase() === "GET") {
-    endpoint = endpoint + "?" + qs.stringify(data);
+    endpoint += `?${qs.stringify(data)}`;
   } else {
     config.body = JSON.stringify(data || {});
   }
-  // fetch不会在400或者500的时候抛错,这是跟axios不一样的地方
-  window.fetch(`${apiUrl}/${endpoint}`, config).then(async (resp) => {
-    if (resp.status === 401) {
-      //没有登录或token过期
-      await logout();
-      window.location.reload();
-      return Promise.reject({ message: "请重新登陆" });
-    }
-    const Data = await resp.json();
-    if (resp.ok) {
-      return Data;
-    } else {
-      return Promise.reject(Data);
-    }
-  });
+
+  // axios 和 fetch 的表现不一样，axios可以直接在返回状态不为2xx的时候抛出异常
+  return window
+    .fetch(`${apiUrl}/${endpoint}`, config)
+    .then(async (response) => {
+      if (response.status === 401) {
+        await auth.logout();
+        window.location.reload();
+        return Promise.reject({ message: "请重新登录" });
+      }
+      const data = await response.json();
+      if (response.ok) {
+        return data;
+      } else {
+        return Promise.reject(data);
+      }
+    });
+};
+
+export const useHttp = () => {
+  const { user } = useAuth();
+  console.log(user, "user");
+  // TODO 讲解 TS 操作符
+  return (...[endpoint, config]: Parameters<typeof http>) =>
+    http(endpoint, { ...config, token: user?.token });
 };
