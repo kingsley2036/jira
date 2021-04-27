@@ -2,11 +2,12 @@ import { useState } from "react";
 import { RegisterScreen } from "./register";
 import { LoginScreen } from "./login";
 import { Button, Card } from "antd";
+import styled from "@emotion/styled";
 
 export const UnauthenticatedApp = () => {
   const [isRegister, setIsRegister] = useState(false);
   return (
-    <div style={{ display: "flex", justifyContent: "center" }}>
+    <Container>
       <Card style={{}}>
         {isRegister ? <LoginScreen /> : <RegisterScreen />}
         <Button
@@ -18,6 +19,12 @@ export const UnauthenticatedApp = () => {
           切换到{isRegister ? "注册" : "登录"}
         </Button>
       </Card>
-    </div>
+    </Container>
   );
 };
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+`;
