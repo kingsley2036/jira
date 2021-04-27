@@ -3,6 +3,7 @@ import { SearchPanel } from "./search-panel";
 import { List } from "./list";
 import { cleanObject, useMount, useDebounce, useArray } from "utils/index";
 import { useHttp } from "../../utils/http";
+import axios from "axios";
 
 interface person {
   name: string;
