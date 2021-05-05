@@ -1,35 +1,36 @@
+import React from "react";
 import { useAuth } from "context/auth-context";
-import React, { FormEvent } from "react";
-import { Form, Input, Button } from "antd";
+import { Form, Input } from "antd";
+import { LongButton } from "unauthenticated-app/index";
+const apiUrl = process.env.REACT_APP_API_URL;
 
 export const LoginScreen = () => {
-  // 这个是登录页面组件,不是登录方法
   const { login, user } = useAuth();
 
+  // HTMLFormElement extends Element
   const handleSubmit = (values: { username: string; password: string }) => {
-    const { username, password } = values;
-    login({
-      username,
-      password,
-    });
+    login(values);
   };
+
   return (
-    <Form onFinish={handleSubmit} labelAlign={"left"}>
+    <Form onFinish={handleSubmit}>
       <Form.Item
-        name="username"
-        label="用户名"
-        rules={[{ required: true, message: "Please input your username!" }]}
+        name={"username"}
+        rules={[{ required: true, message: "请输入用户名" }]}
       >
-        <Input type="text" id="userName" />
+        <Input placeholder={"用户名"} type="text" id={"username"} />
       </Form.Item>
       <Form.Item
         name={"password"}
-        label={"密码"}
-        rules={[{ required: true, message: "Please input your password!" }]}
+        rules={[{ required: true, message: "请输入密码" }]}
       >
-        <Input type="password" id="password" />
+        <Input placeholder={"密码"} type="password" id={"password"} />
       </Form.Item>
-      <Button htmlType="submit">登录</Button>
+      <Form.Item>
+        <LongButton htmlType={"submit"} type={"primary"}>
+          登录
+        </LongButton>
+      </Form.Item>
     </Form>
   );
 };
