@@ -11,12 +11,19 @@ const defaultInitialState: State<null> = {
   data: null,
   stat: "idle",
 };
+const defaultConfig = {
+  throwOnError: false,
+};
 
-export const useAsync = <D>(initialState?: State<D>) => {
+export const useAsync = <D>(
+  initialState?: State<D>,
+  initialConfig?: typeof defaultConfig
+) => {
   const [state, setState] = useState<State<D>>({
     ...defaultInitialState,
     ...initialState,
   });
+  const config = { ...defaultConfig, ...initialConfig };
   const setData = (data: D) => {
     setState({
       error: null,
@@ -46,6 +53,7 @@ export const useAsync = <D>(initialState?: State<D>) => {
       })
       .catch((error) => {
         setError(error);
+        if (config.throwOnError) return Promise.reject(error); // 这里有一个需求是:不总是抛出错误
         return error;
       });
   };
