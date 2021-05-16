@@ -41,7 +41,6 @@ export const FullPageError = ({ error }: { error: Error | null }) => {
   return (
     <FullPage>
       <DevTools />
-
       <Typography.Text type={"danger"}>{error?.message}</Typography.Text>
     </FullPage>
   );
