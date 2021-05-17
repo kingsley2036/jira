@@ -76,3 +76,6 @@ export const useDocumentTitle = (
     };
   }, [keepOnUnmount, odlTitle]);
 };
+export const resetRouter = () => {
+  window.location.href = window.location.origin;
+};
