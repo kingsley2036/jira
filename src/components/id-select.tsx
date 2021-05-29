@@ -16,7 +16,7 @@ export const IdSelect = (props: idSelectProps) => {
   const { value, onchange, defaultOptionName, options, ...restProps } = props;
   return (
     <Select
-      value={toNumber(value)}
+      value={options?.length ? toNumber(value) : 0} // 这里options默认是一个空数组,所以length为0,所以会走第二个判断.
       onChange={(value) => onchange(toNumber(value) || undefined)}
       {...restProps}
     >
