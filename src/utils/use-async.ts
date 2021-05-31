@@ -23,6 +23,8 @@ export const useAsync = <D>(
     ...defaultInitialState,
     ...initialState,
   });
+  // 定义刷新方法,要求可以重新调用run方法
+  const [retry, setRetry] = useState(() => () => {});
   const config = { ...defaultConfig, ...initialConfig };
   const setData = (data: D) => {
     setState({
@@ -38,13 +40,24 @@ export const useAsync = <D>(
       stat: "error",
     });
   };
-  const run = (promise: Promise<D>) => {
+  const run = (
+    promise: Promise<D>,
+    runConfig?: { retry: () => Promise<D> }
+  ) => {
     if (!promise || !promise.then) {
       throw new Error("请传入promise");
     }
     setState({
       ...state,
       stat: "loading",
+    });
+    // 确实是使用的上一次run运行时的promise,
+    // 而且是需要发请求的使用的promise
+    // 其实我觉得这样封装有点过渡设计了,不就是重新发个请求,然后刷新页面吗,至于搞得这么复杂吗
+    setRetry(() => () => {
+      if (runConfig) {
+        run(runConfig.retry(), runConfig);
+      }
     });
     return promise
       .then((data) => {
@@ -63,6 +76,7 @@ export const useAsync = <D>(
     isError: state.stat === "error",
     isSuccess: state.stat === "success",
     run,
+    retry, // 刷新方法
     setData,
     setError,
     ...state,

@@ -8,8 +8,28 @@ export const useProjects = (params?: Partial<Project>) => {
   const client = useHttp();
   const { run, ...rest } = useAsync<Project[]>();
   useEffect(() => {
-    run(client("projects", { data: cleanObject(params || {}) }));
+    const fetchProjects = () =>
+      client("projects", { data: cleanObject(params || {}) });
+    run(fetchProjects(), { retry: fetchProjects });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
   return rest;
+};
+// 编辑
+export const useEditProjects = () => {
+  const client = useHttp();
+  const { run, ...asyncResult } = useAsync();
+  // 使用hooks返回一个函数,用它来处理编辑,这样就避开了hooks的限制
+  const mutate = (params: Partial<Project>) => {
+    return run(
+      client(`projects/${params.id}`, {
+        data: params,
+        method: "PATCH",
+      })
+    );
+  };
+  return {
+    mutate,
+    ...asyncResult,
+  };
 };
