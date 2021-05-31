@@ -1,18 +1,21 @@
 import { useHttp } from "./http";
 import { useAsync } from "./use-async";
 import { Project } from "../screens/project-list/list";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { cleanObject } from "./index";
 
 export const useProjects = (params?: Partial<Project>) => {
   const client = useHttp();
   const { run, ...rest } = useAsync<Project[]>();
+
+  const fetchProjects = useCallback(
+    () => client("projects", { data: cleanObject(params || {}) }),
+    [params, client]
+  );
+
   useEffect(() => {
-    const fetchProjects = () =>
-      client("projects", { data: cleanObject(params || {}) });
     run(fetchProjects(), { retry: fetchProjects });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params]);
+  }, [run, fetchProjects]);
   return rest;
 };
 // 编辑

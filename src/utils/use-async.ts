@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useMountedRef } from "./index";
 
 interface State<D> {
@@ -27,54 +27,50 @@ export const useAsync = <D>(
   // 定义刷新方法,要求可以重新调用run方法
   const [retry, setRetry] = useState(() => () => {});
   const config = { ...defaultConfig, ...initialConfig };
-  const setData = (data: D) => {
+  const setData = useCallback((data: D) => {
     setState({
       error: null,
       data,
       stat: "success",
     });
-  };
-  const setError = (error: Error) => {
+  }, []);
+  const setError = useCallback((error: Error) => {
     setState({
       error: error,
       data: null,
       stat: "error",
     });
-  };
+  }, []);
   const mountedRef = useMountedRef();
-
-  const run = (
-    promise: Promise<D>,
-    runConfig?: { retry: () => Promise<D> }
-  ) => {
-    if (!promise || !promise.then) {
-      throw new Error("请传入promise");
-    }
-    setState({
-      ...state,
-      stat: "loading",
-    });
-    // 确实是使用的上一次run运行时的promise,
-    // 而且是需要发请求的使用的promise
-    // 其实我觉得这样封装有点过渡设计了,不就是重新发个请求,然后刷新页面吗,至于搞得这么复杂吗
-    setRetry(() => () => {
-      if (runConfig) {
-        run(runConfig.retry(), runConfig);
+  const run = useCallback(
+    (promise: Promise<D>, runConfig?: { retry: () => Promise<D> }) => {
+      if (!promise || !promise.then) {
+        throw new Error("请传入promise");
       }
-    });
-    return promise
-      .then((data) => {
-        if (mountedRef.current) {
-          setData(data);
-          return data;
+      setState((preState) => ({ ...preState, stat: "loading" }));
+      // 确实是使用的上一次run运行时的promise,
+      // 而且是需要发请求的使用的promise
+      // 其实我觉得这样封装有点过渡设计了,不就是重新发个请求,然后刷新页面吗,至于搞得这么复杂吗
+      setRetry(() => () => {
+        if (runConfig) {
+          run(runConfig.retry(), runConfig);
         }
-      })
-      .catch((error) => {
-        setError(error);
-        if (config.throwOnError) return Promise.reject(error); // 这里有一个需求是:不总是抛出错误
-        return error;
       });
-  };
+      return promise
+        .then((data) => {
+          if (mountedRef.current) {
+            setData(data);
+            return data;
+          }
+        })
+        .catch((error) => {
+          setError(error);
+          if (config.throwOnError) return Promise.reject(error); // 这里有一个需求是:不总是抛出错误
+          return error;
+        });
+    },
+    [config.throwOnError, mountedRef, setData, setError]
+  ); // 不要把state加入到依赖里面
   return {
     isIdle: state.stat === "idle",
     isLoading: state.stat === "loading",
