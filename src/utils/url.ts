@@ -11,8 +11,8 @@ export const useUrlQueryParams = <K extends string>(keys: K[]) => {
       () =>
         keys.reduce((prev, key) => {
           return { ...prev, [key]: searchParams.get(key) || "" };
-          // eslint-disable-next-line
         }, {} as { [key in K]: string }),
+      // eslint-disable-next-line
       [searchParams]
     ), //key in K 这种语法没用过
     (params: Partial<{ [key in K]: unknown }>) => {
@@ -24,5 +24,5 @@ export const useUrlQueryParams = <K extends string>(keys: K[]) => {
     },
   ] as const;
 };
-const a = [1, "2", { key: "value" }]; // 类型推断为 (string | number | { key: string; })[]
-const b = [1, "2", { key: "value" }] as const; // 推断为  readonly [1, "2", {     readonly key: "value"; }]
+// const a = [1, "2", { key: "value" }]; // 类型推断为 (string | number | { key: string; })[]
+// const b = [1, "2", { key: "value" }] as const; // 推断为  readonly [1, "2", {     readonly key: "value"; }]

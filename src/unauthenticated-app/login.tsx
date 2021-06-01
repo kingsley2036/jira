@@ -1,7 +1,7 @@
 import React from "react";
 import { useAuth } from "context/auth-context";
 import { Form, Input } from "antd";
-import { LongButton } from "unauthenticated-app/index";
+import { LongButton } from "./index";
 import { useAsync } from "../utils/use-async";
 
 export const LoginScreen = ({
@@ -9,7 +9,7 @@ export const LoginScreen = ({
 }: {
   onError: (error: Error) => void;
 }) => {
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const { run, isLoading } = useAsync(undefined, { throwOnError: true });
   // HTMLFormElement extends Element
   const handleSubmit = async (values: {
