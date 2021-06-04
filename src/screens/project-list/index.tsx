@@ -8,14 +8,15 @@ import { useProjects } from "../../utils/project";
 import { useUsers } from "../../utils/user";
 import { useProjectSearchParams } from "./util";
 import { Row } from "../../components/lib";
+import { useDispatch } from "react-redux";
+import { projectListActions } from "./project-list.slice";
 
 // 使用 JS 的同学，大部分的错误都是在 runtime(运行时) 的时候发现的
 // 我们希望，在静态代码中，就能找到其中的一些错误 -> 强类型
 
-export const ProjectListScreen = (props: {
-  setProjectModalOpen: (isOpen: boolean) => void;
-}) => {
+export const ProjectListScreen = () => {
   const [projectParams, setParam] = useProjectSearchParams();
+  const dispatch = useDispatch();
   const debouncedParam = useDebounce(projectParams, 200);
   const { isLoading, error, data: list, retry } = useProjects(debouncedParam);
   const { data: users } = useUsers();
@@ -24,7 +25,7 @@ export const ProjectListScreen = (props: {
     <Container>
       <Row between={true}>
         <h1>项目列表</h1>
-        <Button onClick={() => props.setProjectModalOpen(true)}>
+        <Button onClick={() => dispatch(projectListActions.openProjectModal())}>
           创建项目
         </Button>
       </Row>
@@ -41,7 +42,6 @@ export const ProjectListScreen = (props: {
         loading={isLoading}
         users={users || []}
         dataSource={list || []}
-        setProjectModalOpen={props.setProjectModalOpen}
       />
     </Container>
   );

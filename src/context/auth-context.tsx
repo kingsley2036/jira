@@ -1,25 +1,20 @@
-import { createContext, useContext, ReactNode } from "react";
+import { ReactNode } from "react";
 import * as auth from "auth-provider";
 import { User } from "screens/project-list/search-panel";
 import { http } from "../utils/http";
 import { useMount } from "../utils";
 import { useAsync } from "../utils/use-async";
 import { FullPageError, FullpageLoading } from "../components/lib";
-const AuthContext = createContext<
-  | {
-      user: User | null;
-      login: (form: authForm) => Promise<void>;
-      register: (form: authForm) => Promise<void>;
-      logout: () => Promise<void>;
-    }
-  | undefined
->(undefined);
-AuthContext.displayName = "AuthContext";
-interface authForm {
+import { bootstrap, selectUser } from "../store/auth.slice";
+import { useDispatch, useSelector } from "react-redux";
+import * as authStore from "../store/auth.slice";
+
+export interface authForm {
   username: string;
   password: string;
 }
-const bootstrapUser = async () => {
+
+export const bootstrapUser = async () => {
   let user = null;
   const token = auth.getToken();
   if (token) {
@@ -30,54 +25,39 @@ const bootstrapUser = async () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // const [user, setUser] = useState<User | null>(null);
-  const {
-    data: user,
-    setData: setUser,
-    isIdle,
-    isLoading,
-    isError,
-    run,
-    error,
-  } = useAsync<null | User>();
+  const { isIdle, isLoading, isError, run, error } = useAsync<null | User>();
+  // dispatch是一个返回promise
+  const dispatch: (...args: unknown[]) => Promise<User> = useDispatch(); // 这个操作不太懂啊
   useMount(() => {
     // useEffect会默认在每次渲染之后时候执行
-    run(bootstrapUser());
+    run(dispatch(bootstrap()));
   });
 
-  const login = (form: authForm) => {
-    return auth.login(form).then((res) => {
-      setUser(res);
-    });
-  };
-  const register = (form: authForm) => {
-    return auth.register(form).then((res) => {
-      setUser(res);
-    });
-  };
-  const logout = () => {
-    return auth.logout().then((_) => {
-      setUser(null);
-    });
-  };
   if (isIdle || isLoading) {
     return <FullpageLoading />;
   }
   if (isError) {
     return <FullPageError error={error} />;
   }
-  return (
-    <AuthContext.Provider
-      children={children}
-      value={{ user, login, register, logout }}
-    />
-  );
+  return <div>{children}</div>;
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("AuthContext不存在");
-  }
-  return context;
+  const dispatch: (...args: unknown[]) => Promise<User> = useDispatch(); // 这个操作不太懂啊
+  const user = useSelector(selectUser);
+  const login = (form: authForm) => {
+    return dispatch(authStore.login(form));
+  };
+  const register = (form: authForm) => {
+    return dispatch(authStore.register(form));
+  };
+  const logout = () => {
+    return dispatch(authStore.logout());
+  };
+  return {
+    user,
+    login,
+    register,
+    logout,
+  };
 };
