@@ -1,5 +1,5 @@
 import { Button, Drawer } from "antd";
-import { useProjectModal } from "../../utils";
+import { useProjectModal } from "./util";
 
 export const ProjectModal = () => {
   const { projectModalOpen, close } = useProjectModal();

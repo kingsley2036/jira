@@ -1,38 +1,51 @@
 import { useHttp } from "./http";
-import { useAsync } from "./use-async";
 import { Project } from "../screens/project-list/list";
-import { useCallback, useEffect } from "react";
-import { cleanObject } from "./index";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const useProjects = (params?: Partial<Project>) => {
   const client = useHttp();
-  const { run, ...rest } = useAsync<Project[]>();
-
-  const fetchProjects = useCallback(
-    () => client("projects", { data: cleanObject(params || {}) }),
-    [params, client]
+  return useQuery<Project[]>(["projects", params], () =>
+    client("projects", { data: params })
   );
-
-  useEffect(() => {
-    run(fetchProjects(), { retry: fetchProjects });
-  }, [run, fetchProjects]);
-  return rest;
 };
 // 编辑
 export const useEditProjects = () => {
   const client = useHttp();
-  const { run, ...asyncResult } = useAsync();
-  // 使用hooks返回一个函数,用它来处理编辑,这样就避开了hooks的限制
-  const mutate = (params: Partial<Project>) => {
-    return run(
+  const queryClient = useQueryClient();
+  return useMutation(
+    (params: Partial<Project>) =>
       client(`projects/${params.id}`, {
         data: params,
         method: "PATCH",
-      })
-    );
-  };
-  return {
-    mutate,
-    ...asyncResult,
-  };
+      }),
+    {
+      onSuccess() {
+        return queryClient.invalidateQueries("projects");
+      },
+    }
+  );
+};
+// 新增
+export const useAddProjects = () => {
+  const client = useHttp();
+  const queryClient = useQueryClient();
+  return useMutation(
+    (params: Partial<Project>) =>
+      client(`projects/${params.id}`, {
+        data: params,
+        method: "POST",
+      }),
+    {
+      onSuccess() {
+        return queryClient.invalidateQueries("projects");
+      },
+    }
+  );
+};
+
+export const useProject = (id: number) => {
+  const client = useHttp();
+  return useQuery<Project>(["project", id], () => client(`projects/${id}`), {
+    enabled: Boolean(id), //id存在才查询
+  });
 };

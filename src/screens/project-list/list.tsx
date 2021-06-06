@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Pin } from "../../components/pin";
 import { useEditProjects } from "../../utils/project";
 import { ButtonNoPadding } from "../../components/lib";
-import { useProjectModal } from "../../utils";
+import { useProjectModal } from "./util";
 export interface Project {
   id: number;
   name: string;
@@ -18,7 +18,6 @@ export interface Project {
 
 interface ListProps extends TableProps<Project> {
   users: User[];
-  refresh: () => void;
 }
 
 export const List = ({ users, ...props }: ListProps) => {
@@ -36,9 +35,7 @@ export const List = ({ users, ...props }: ListProps) => {
               <Pin
                 checked={project.pin}
                 onCheckedChange={(pin) => {
-                  mutate({ id: project.id, pin }).then(() => {
-                    props.refresh();
-                  });
+                  mutate({ id: project.id, pin });
                 }}
               />
             );
