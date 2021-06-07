@@ -1,6 +1,7 @@
 import { useUrlQueryParams } from "../../utils/url";
 import { useMemo } from "react";
 import { useProject } from "../../utils/project";
+import { useSearchParams } from "react-router-dom";
 
 export const useProjectSearchParams = () => {
   const [param, setParam] = useUrlQueryParams(["name", "personId"]);
@@ -23,18 +24,22 @@ export const useProjectModal = () => {
   const { data: editingProject, isLoading } = useProject(
     Number(editingProjectId)
   );
-  const setId = (id: number) => setEditingProjectId({ editingProjectId: id });
+  const [_, setUrlParams] = useSearchParams();
   const open = () => {
     setProjectCreate({ projectCreate: true });
   };
   const close = () => {
-    setProjectCreate({ projectCreate: null });
+    // 下面这种写法有问题,projectCreate改不成null,不太清楚为什么
+    // setProjectCreate({ projectCreate: null });
+    setUrlParams({ projectCreate: "", editingProjectId: "" });
   };
+  const startEdit = (id: number) =>
+    setEditingProjectId({ editingProjectId: id });
   return {
-    projectModalOpen: projectCreate === "true",
+    projectModalOpen: projectCreate === "true" || Boolean(editingProjectId),
     open,
     close,
-    setId,
+    startEdit,
     editingProject,
     isLoading,
   };

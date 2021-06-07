@@ -31,7 +31,7 @@ export const useAddProjects = () => {
   const queryClient = useQueryClient();
   return useMutation(
     (params: Partial<Project>) =>
-      client(`projects/${params.id}`, {
+      client(`projects`, {
         data: params,
         method: "POST",
       }),
@@ -42,7 +42,7 @@ export const useAddProjects = () => {
     }
   );
 };
-
+// 获取项目详情
 export const useProject = (id: number) => {
   const client = useHttp();
   return useQuery<Project>(["project", id], () => client(`projects/${id}`), {
