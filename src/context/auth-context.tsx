@@ -5,6 +5,7 @@ import { http } from "../utils/http";
 import { useMount } from "../utils";
 import { useAsync } from "../utils/use-async";
 import { FullPageError, FullpageLoading } from "../components/lib";
+import { useQueryClient } from "react-query";
 const AuthContext = createContext<
   | {
       user: User | null;
@@ -44,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // useEffect会默认在每次渲染之后时候执行
     run(bootstrapUser());
   });
-
+  const queryClient = useQueryClient();
   const login = (form: authForm) => {
     return auth.login(form).then((res) => {
       setUser(res);
@@ -57,6 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   const logout = () => {
     return auth.logout().then((_) => {
+      queryClient.clear();
       setUser(null);
     });
   };
