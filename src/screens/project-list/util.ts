@@ -13,8 +13,12 @@ export const useProjectSearchParams = () => {
     setParam,
   ] as const;
 };
-
+export const useProjectsQueryKey = () => {
+  const [params] = useProjectSearchParams();
+  return ["projects", params];
+};
 export const useProjectModal = () => {
+  // useUrlQueryParams 这个自定义hook有些许问题
   const [{ projectCreate }, setProjectCreate] = useUrlQueryParams([
     "projectCreate",
   ]);
@@ -24,13 +28,13 @@ export const useProjectModal = () => {
   const { data: editingProject, isLoading } = useProject(
     Number(editingProjectId)
   );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setUrlParams] = useSearchParams();
   const open = () => {
     setProjectCreate({ projectCreate: true });
   };
   const close = () => {
     // 下面这种写法有问题,projectCreate改不成null,不太清楚为什么
-    // setProjectCreate({ projectCreate: null });
     setUrlParams({ projectCreate: "", editingProjectId: "" });
   };
   const startEdit = (id: number) =>

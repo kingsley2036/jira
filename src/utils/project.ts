@@ -1,6 +1,11 @@
 import { useHttp } from "./http";
 import { Project } from "../screens/project-list/list";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { QueryKey, useMutation, useQuery } from "react-query";
+import {
+  useOptimisticAdd,
+  useOptimisticDelete,
+  useOptimisticEdit,
+} from "./use-optimistic-options";
 
 export const useProjects = (params?: Partial<Project>) => {
   const client = useHttp();
@@ -9,9 +14,9 @@ export const useProjects = (params?: Partial<Project>) => {
   );
 };
 // 编辑
-export const useEditProjects = () => {
+export const useEditProjects = (queryKey: QueryKey) => {
   const client = useHttp();
-  const queryClient = useQueryClient();
+  const mutateOptions = useOptimisticEdit(queryKey);
   return useMutation(
     (params: Partial<Project>) =>
       client(`projects/${params.id}`, {
@@ -19,16 +24,14 @@ export const useEditProjects = () => {
         method: "PATCH",
       }),
     {
-      onSuccess() {
-        return queryClient.invalidateQueries("projects");
-      },
+      ...mutateOptions,
     }
   );
 };
 // 新增
-export const useAddProjects = () => {
+export const useAddProjects = (queryKey: QueryKey) => {
   const client = useHttp();
-  const queryClient = useQueryClient();
+  const mutateOptions = useOptimisticAdd(queryKey);
   return useMutation(
     (params: Partial<Project>) =>
       client(`projects`, {
@@ -36,9 +39,21 @@ export const useAddProjects = () => {
         method: "POST",
       }),
     {
-      onSuccess() {
-        return queryClient.invalidateQueries("projects");
-      },
+      ...mutateOptions,
+    }
+  );
+};
+//删除
+export const useDeleteProjects = (queryKey: QueryKey) => {
+  const client = useHttp();
+  const mutateOptions = useOptimisticDelete(queryKey);
+  return useMutation(
+    (params: Partial<Project>) =>
+      client(`projects/${params.id}`, {
+        method: "DELETE",
+      }),
+    {
+      ...mutateOptions,
     }
   );
 };

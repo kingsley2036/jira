@@ -1,5 +1,5 @@
 import { Button, Drawer, Form, Input, Spin } from "antd";
-import { useProjectModal } from "./util";
+import { useProjectModal, useProjectsQueryKey } from "./util";
 import { UserSelect } from "../../components/user-select";
 import { useAddProjects, useEditProjects } from "../../utils/project";
 import { useForm } from "antd/es/form/Form";
@@ -15,7 +15,10 @@ export const ProjectModal = () => {
   } = useProjectModal();
   const title = editingProject ? "编辑项目" : "创建项目";
   const useMutateProject = editingProject ? useEditProjects : useAddProjects;
-  const { isLoading: mutateLoading, mutateAsync, error } = useMutateProject();
+  const queryKey = useProjectsQueryKey();
+  const { isLoading: mutateLoading, mutateAsync, error } = useMutateProject(
+    queryKey
+  );
   const [form] = useForm();
   const onFinish = (values: any) => {
     mutateAsync({ ...editingProject, ...values }).then(() => {
