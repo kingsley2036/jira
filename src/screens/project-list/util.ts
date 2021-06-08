@@ -1,4 +1,4 @@
-import { useUrlQueryParams } from "../../utils/url";
+import { useSetUrlSearchParams, useUrlQueryParams } from "../../utils/url";
 import { useMemo } from "react";
 import { useProject } from "../../utils/project";
 import { useSearchParams } from "react-router-dom";
@@ -28,8 +28,7 @@ export const useProjectModal = () => {
   const { data: editingProject, isLoading } = useProject(
     Number(editingProjectId)
   );
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setUrlParams] = useSearchParams();
+  const setUrlParams = useSetUrlSearchParams();
   const open = () => {
     setProjectCreate({ projectCreate: true });
   };
