@@ -1,7 +1,6 @@
 import { useSetUrlSearchParams, useUrlQueryParams } from "../../utils/url";
 import { useMemo } from "react";
 import { useProject } from "../../utils/project";
-import { useSearchParams } from "react-router-dom";
 
 export const useProjectSearchParams = () => {
   const [param, setParam] = useUrlQueryParams(["name", "personId"]);
