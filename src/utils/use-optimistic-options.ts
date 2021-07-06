@@ -42,5 +42,5 @@ export const useOptimisticEdit = (queryKey: QueryKey) =>
 
 export const useOptimisticAdd = (queryKey: QueryKey) =>
   useOptimisticOptions(queryKey, (target, old) => {
-    return old?.length ? [target, ...old] : [target];
+    return old?.length ? [...old, target] : [target];
   });
